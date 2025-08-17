@@ -182,14 +182,14 @@ def capture_social_cards(pelican_obj: Any) -> None:
         logger.debug("[social_share] No social pages to process")
         return
 
-    # Use stored taglines from the generation phase
-    taglines = _taglines.copy()
+    # Collect taglines for hash calculation
+    taglines = _taglines
 
     # Screenshot settings
     viewport = settings.get("SOCIAL_VIEWPORT", (1200, 675))
     device_scale_factor = settings.get("SOCIAL_DEVICE_SCALE_FACTOR", 1)
     wait_until = settings.get("SOCIAL_WAIT_UNTIL", "networkidle")
-    wait_selector = settings.get("SOCIAL_WAIT_SELECTOR", None)
+    wait_selector = settings.get("SOCIAL_WAIT_SELECTOR", "body.images-ready")  # Wait for images
     hash_skip = settings.get("SOCIAL_HASH_SKIP", True)
     hash_version = settings.get("SOCIAL_HASH_VERSION", "v1")
 
@@ -227,12 +227,18 @@ def capture_social_cards(pelican_obj: Any) -> None:
                     url = f"http://127.0.0.1:{port}/social/{slug}.html"
                     
                     try:
-                        # Navigate and wait
+                        # Navigate and wait for network idle
                         page.goto(url, wait_until=wait_until, timeout=15000)
                         
-                        # Optional wait for specific selector
+                        # Wait for images to load (custom selector)
                         if wait_selector:
-                            page.wait_for_selector(wait_selector, timeout=5000)
+                            try:
+                                page.wait_for_selector(wait_selector, timeout=10000)
+                            except:
+                                logger.warning(f"[social_share] Timeout waiting for selector {wait_selector} on {slug}")
+                        
+                        # Additional wait for images to render
+                        page.wait_for_timeout(1000)  # 1 second additional wait
                         
                         # Take screenshot
                         page.screenshot(path=png_path, full_page=False)
