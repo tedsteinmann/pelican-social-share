@@ -1,4 +1,15 @@
-# Pelican Social Card Plugin — Requirements (Playwright Implementation)
+# Pelican Social Card Plugin — Requirements (Python Playwright Implementation)
+
+## 1) Overview
+A Pelican plugin that generates **Open Graph / Twitter social share images** during local builds.  
+For each selected article or page (configurable) with a `tagline:` metadata field:
+
+1. Renders an HTML card using the site's existing Pelican **theme CSS** via a dedicated template `social_card.html`.
+2. Saves that HTML (versionable) to `content/social/<slug>.html`.
+3. Uses **Python Playwright (Chromium)** to screenshot the HTML at **1200×675** into `content/static/images/social/<slug>.png`.
+4. Exposes the path (`article.metadata["social_image"]`) so templates set `og:image` / `twitter:image`.
+
+Pure Python implementation with no Node.js dependencies. Layout uses existing theme CSS for consistency.cial Card Plugin — Requirements (Playwright Implementation)
 
 ## 1) Overview
 A Pelican plugin that generates **Open Graph / Twitter social share images** during local builds.  

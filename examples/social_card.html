@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Social Card</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            width: 1200px;
+            height: 675px;
+            overflow: hidden;
+            background: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .social-card {
+            display: flex;
+            height: 100%;
+            padding: 60px 80px;
+            gap: 50px;
+            align-items: center;
+        }
+        
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .tagline {
+            font-size: 64px;
+            font-weight: 700;
+            line-height: 1.1;
+            color: #1a1a1a;
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+        
+        .domain {
+            font-size: 24px;
+            color: #666666;
+            font-weight: 500;
+        }
+        
+        .portrait {
+            width: 320px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .portrait img {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Responsive adjustments for long taglines */
+        @media (max-width: 1200px) {
+            .tagline {
+                font-size: 56px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="social-card">
+        <div class="content">
+            <div class="tagline">{{ tagline }}</div>
+            <div class="domain">{{ SITEURL|replace('https://', '')|replace('http://', '') or 'yoursite.com' }}</div>
+        </div>
+        <div class="portrait">
+            {% if portrait_url %}
+                <img src="{{ SITEURL }}{{ portrait_url }}" alt="Portrait" />
+            {% else %}
+                <div style="width: 100%; height: 300px; background: #f0f0f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 18px;">Portrait</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
