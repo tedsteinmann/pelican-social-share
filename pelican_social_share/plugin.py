@@ -89,6 +89,12 @@ def build_social_pages(
         tagline = content_obj.metadata.get("tagline")
         if not tagline:
             continue
+        
+        # Skip if article/page already has an image defined
+        existing_image = content_obj.metadata.get("image")
+        if existing_image:
+            logger.debug(f"[social_share] Skipping {content_obj.slug} - already has image: {existing_image}")
+            continue
             
         slug = content_obj.slug
         
@@ -133,7 +139,11 @@ def build_social_pages(
             continue
 
         # Set metadata for template usage
-        content_obj.metadata["social_image"] = f"/static/images/social/{slug}.png"
+        image_path = f"/static/images/{slug}-social-share.png"
+        content_obj.metadata["social_image"] = image_path
+        
+        # Also set the image attribute in frontmatter for general use
+        content_obj.metadata["image"] = image_path
         
         # Store tagline globally for screenshot phase
         _taglines[slug] = tagline
@@ -161,7 +171,7 @@ def capture_social_cards(pelican_obj: Any) -> None:
         return
 
     output_path = settings.get("OUTPUT_PATH", "output")
-    image_dir = settings.get("SOCIAL_IMAGE_DIR", "content/static/images/social")
+    image_dir = settings.get("SOCIAL_IMAGE_DIR", "content/static/images")
     
     os.makedirs(image_dir, exist_ok=True)
 
@@ -215,7 +225,7 @@ def capture_social_cards(pelican_obj: Any) -> None:
                     if not tagline:
                         continue
                         
-                    png_path = os.path.join(image_dir, f"{slug}.png")
+                    png_path = os.path.join(image_dir, f"{slug}-social-share.png")
                     
                     # Check hash for skip logic
                     if hash_skip and should_skip_generation(

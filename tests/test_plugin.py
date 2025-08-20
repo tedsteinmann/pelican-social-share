@@ -106,7 +106,8 @@ class MockContent:
 class TestBuildSocialPages:
     """Test social page building functionality."""
     
-    def test_build_social_pages_no_template(self, mock_pelican_settings):
+    @patch('pelican_social_share.plugin.logger')
+    def test_build_social_pages_no_template(self, mock_logger, mock_pelican_settings):
         """Test behavior when template is missing."""
         generator = MockGenerator(mock_pelican_settings)
         generator.env.get_template.side_effect = Exception("Template not found")
@@ -117,7 +118,7 @@ class TestBuildSocialPages:
         build_social_pages(generator, [])
         
         # Should log warning
-        generator.logger.warning.assert_called_once()
+        mock_logger.warning.assert_called_once()
     
     def test_build_social_pages_no_tagline(self, mock_pelican_settings, sample_template_content):
         """Test that content without tagline is skipped."""
@@ -169,7 +170,50 @@ class TestBuildSocialPages:
         assert (output_social_dir / "test-slug.html").exists()
         
         # Check that metadata was set
-        assert content.metadata["social_image"] == "/static/images/social/test-slug.png"
+        expected_path = "/static/images/test-slug-social-share.png"
+        assert content.metadata["social_image"] == expected_path
+        assert content.metadata["image"] == expected_path
+
+    def test_build_social_pages_skip_existing_image(self, mock_pelican_settings, sample_template_content, tmp_path):
+        """Test that content with existing image metadata is skipped."""
+        # Setup directories
+        social_dir = tmp_path / "social"
+        output_social_dir = tmp_path / "output" / "social"
+        social_dir.mkdir(parents=True)
+        output_social_dir.mkdir(parents=True)
+
+        # Update settings with real paths
+        mock_pelican_settings["SOCIAL_CARD_HTML_DIR"] = str(social_dir)
+        mock_pelican_settings["OUTPUT_PATH"] = str(tmp_path / "output")
+
+        # Setup mock generator
+        generator = MockGenerator(mock_pelican_settings)
+        mock_template = MagicMock()
+        mock_template.render.return_value = sample_template_content
+        generator.env.get_template.return_value = mock_template
+
+        # Create content with tagline AND existing image
+        content = MockContent("test-slug", {
+            "tagline": "Test tagline",
+            "image": "/existing/image.jpg"  # Has existing image
+        })
+
+        from pelican_social_share.plugin import build_social_pages
+
+        build_social_pages(generator, [content])
+
+        # Check that template was NOT rendered (content was skipped)
+        mock_template.render.assert_not_called()
+
+        # Check that HTML files were NOT created
+        assert not (social_dir / "test-slug.html").exists()
+        assert not (output_social_dir / "test-slug.html").exists()
+
+        # Check that social_image metadata was NOT set
+        assert "social_image" not in content.metadata
+        
+        # Check that the original image attribute is preserved
+        assert content.metadata["image"] == "/existing/image.jpg"
 
 
 # Integration test that requires manual verification
