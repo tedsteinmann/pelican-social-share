@@ -22,16 +22,23 @@
       box-sizing: border-box;
     }
 
-    /* Safe zone: centered square (height x height) = 630x630 */
+    /* Safe zone: centered square (height x height) = 630x630
+       REMOVE padding here so the image can be anchored to the exact bottom-right.
+       Use an inner .content wrapper to provide the previous padding for the text. */
     .safe-zone {
-      position: relative; /* important for absolutely positioned portrait */
+      position: relative;
       width: 630px;
       height: 630px;
-      display: flex;
-      flex-direction: row;
-      gap: 48px;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .safe-zone .content {
+      /* preserve the previous inner spacing for text/layout */
       padding: 72px 64px;
       box-sizing: border-box;
+      height: 100%;
+      overflow: hidden;
     }
 
     /* Debug outline when ?debug is present */
@@ -40,18 +47,43 @@
       outline-offset: 0;
     }
 
+    /* Portrait: absolutely anchored to bottom-right of the safe-zone and not resized */
+    aside {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      margin: 0;
+      padding: 0;
+      line-height: 0;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    aside img {
+      display: block;
+      width: auto;        /* keep natural width */
+      height: auto;       /* keep natural height */
+      max-width: none;
+      max-height: none;   /* do not constrain — image stays at natural size */
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
+      object-fit: initial;
+    }
+
+    /* Main content lives inside .content so text keeps the same layout/padding */
     main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      gap: 28px;
+      display: block;
+      overflow: visible;
+      height: 100%;
     }
 
     h1 {
       font-size: 72px;
       line-height: 1.05;
-      margin: 0;
+      margin: 0 0 18px 0;
       letter-spacing: -1px;
       max-width: 100%;
       word-wrap: break-word;
@@ -62,33 +94,6 @@
       font-size: 28px;
       opacity: 0.75;
       margin: 0;
-    }
-
-    /* Portrait: anchored to bottom-right of the safe-zone content area and not resized */
-    aside {
-      position: absolute;
-      right: 64px;   /* matches safe-zone horizontal padding */
-      bottom: 72px;  /* matches safe-zone vertical padding */
-      display: block;
-      z-index: 10;           /* sit above main content */
-      pointer-events: auto;  /* allow inspection (useful when testing) */
-      margin: 0;
-      padding: 0;
-      line-height: 0;
-    }
- 
-    aside img {
-      display: block;
-      width: auto;        /* keep natural width */
-      height: auto;       /* keep natural height */
-      max-width: none;
-      max-height: none;
-      border: none;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0;
-      margin: 0;
-      object-fit: initial;
     }
 
     /* Placeholder (when no portrait is provided) */
@@ -111,10 +116,14 @@
 </head>
 <body>
   <div class="safe-zone">
-    <main>
-      <h1>{{ tagline }}</h1>
-      <small>{{ SITENAME or 'site' }}</small>
-    </main>
+    <!-- inner content keeps previous padding while allowing image to sit flush at bottom-right -->
+    <div class="content">
+      <main>
+        <h1>{{ tagline }}</h1>
+        <small>{{ SITENAME or 'site' }}</small>
+        <!-- Add more body text here if needed -->
+      </main>
+    </div>
 
     <aside>
       {% if portrait_url %}
@@ -126,7 +135,7 @@
   </div>
 
   <script>
-    if (location.search.includes('debug')) document.body.classList.add('debug');
+    if (location.includes('debug')) document.body.classList.add('debug');
   </script>
 </body>
 </html>
