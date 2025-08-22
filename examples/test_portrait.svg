@@ -1,0 +1,24 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="400" fill="#f8f9fa"/>
+  
+  <!-- Face circle -->
+  <circle cx="150" cy="140" r="60" fill="#e9ecef" stroke="#6c757d" stroke-width="2"/>
+  
+  <!-- Eyes -->
+  <circle cx="135" cy="125" r="5" fill="#495057"/>
+  <circle cx="165" cy="125" r="5" fill="#495057"/>
+  
+  <!-- Nose -->
+  <line x1="150" y1="135" x2="150" y2="145" stroke="#6c757d" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Mouth -->
+  <path d="M 135 155 Q 150 165 165 155" stroke="#6c757d" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Body/shoulders -->
+  <path d="M 100 200 Q 150 180 200 200 L 200 400 L 100 400 Z" fill="#dee2e6" stroke="#6c757d" stroke-width="2"/>
+  
+  <!-- Label -->
+  <text x="150" y="250" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#495057">Test Portrait</text>
+  <text x="150" y="270" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#6c757d">300x400px</text>
+</svg>

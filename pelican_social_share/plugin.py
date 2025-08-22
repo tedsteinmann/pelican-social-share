@@ -83,11 +83,32 @@ def build_social_pages(
     siteurl = settings.get("SITEURL", "")
     sitename = settings.get("SITENAME", "")
     
+    # Manual sample render (for testing)
+    sample_tagline = settings.get("SOCIAL_SAMPLE_TAGLINE")
+    if sample_tagline:
+        sample_out = os.path.join(output_social_dir, "_sample.html")
+        try:
+            html = template.render(
+                tagline=sample_tagline,
+                SITENAME=sitename or "Sample Site",
+                SITEURL=siteurl,
+                portrait_url=portrait_url,
+            )
+            with open(sample_out, "w", encoding="utf-8") as f:
+                f.write(html)
+            logger.info(f"[social_share] Sample social card written to: {sample_out}")
+            logger.info(f"[social_share] View at: file://{os.path.abspath(sample_out)}?debug")
+        except Exception as e:
+            logger.warning(f"[social_share] Failed to render sample social card: {e}")
+    
     processed = 0
     
     for content_obj in content_objects:
         tagline = content_obj.metadata.get("tagline")
         if not tagline:
+            logger.debug(
+                f"[social_share] Skipping {getattr(content_obj, 'slug', '<unknown>')} - no tagline found"
+            )
             continue
         
         # Skip if article/page already has an image defined
@@ -223,8 +244,9 @@ def capture_social_cards(pelican_obj: Any) -> None:
                 for slug in social_pages:
                     tagline = taglines.get(slug, "")
                     if not tagline:
+                        logger.debug(f"[social_share] Skipping screenshot for {slug} - no tagline available")
                         continue
-                        
+                    
                     png_path = os.path.join(image_dir, f"{slug}-social-share.png")
                     
                     # Check hash for skip logic

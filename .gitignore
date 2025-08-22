@@ -1,5 +1,12 @@
 # Pelican Social Share Development
 
+# Generated samples
+sample_output/
+
+# Personal portrait files (contributors can add their own)
+examples/portrait.*
+examples/my_portrait.*
+
 *.pyc
 __pycache__/
 *.pyo
